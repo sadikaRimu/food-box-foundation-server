@@ -61,14 +61,12 @@ async function run() {
 
     app.post("/addblog", async (req, res) => {
       const query = req.body;
-      console.log(query);
       const result = await blogCollection.insertOne(query);
       res.send(result);
     });
 
     app.post("/addevent", async (req, res) => {
       const query = req.body;
-      console.log(query);
       const result = await eventCollection.insertOne(query);
       res.send(result);
     });
@@ -194,7 +192,6 @@ async function run() {
 
     app.delete("/blog/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
       const query = { _id: ObjectId(id) };
       const result = await blogCollection.deleteOne(query);
       res.send(result);
@@ -202,7 +199,6 @@ async function run() {
 
     app.delete("/event/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
       const query = { _id: ObjectId(id) };
       const result = await eventCollection.deleteOne(query);
       res.send(result);
@@ -210,7 +206,6 @@ async function run() {
 
     app.delete("/gallery/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
       const query = { _id: ObjectId(id) };
       const result = await galleryCollection.deleteOne(query);
       res.send(result);
