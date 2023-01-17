@@ -1,0 +1,29 @@
+{
+  "name": "food-box-foundation-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js",
+    "build": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sadikaRimu/food-box-foundation-server.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sadikaRimu/food-box-foundation-server/issues"
+  },
+  "homepage": "https://github.com/sadikaRimu/food-box-foundation-server#readme",
+  "description": "",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "mongodb": "^4.13.0",
+    "stripe": "^11.6.0"
+  }
+}
