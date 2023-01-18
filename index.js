@@ -29,14 +29,12 @@ async function run() {
       const donationAmount = req.body;
       const actualAmount = donationAmount.amountFromButton;
       const amount = actualAmount * 100;
-      console.log(amount);
 
       const paymentIntent = await stripe.paymentIntents.create({
         amount: amount,
         currency: "inr",
         payment_method_types: ["card"],
       });
-      console.log(paymentIntent.client_secret);
       res.send({
         clientSecret: paymentIntent.client_secret,
       });
