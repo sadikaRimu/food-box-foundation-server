@@ -1,6 +1,7 @@
 // iffat nur shad
 const express = require("express");
 const cors = require("cors");
+const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const app = express();
 const port = process.env.PORT || 5000;
@@ -16,6 +17,20 @@ const client = new MongoClient(uri, {
   useUnifiedTopology: true,
   serverApi: ServerApiVersion.v1,
 });
+function verifyJWT(req, res, next) {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) {
+    return res.status(401).send({ message: "Unauthorized Access" });
+  }
+  const token = authHeader.split(" ")[1];
+  jwt.verify(token, process.env.ACCESS_TOKEN, function (err, decoded) {
+    if (err) {
+      return res.status(403).send("Forbidden Access");
+    }
+    req.decoded = decoded;
+    next();
+  });
+}
 
 async function run() {
   try {
@@ -24,6 +39,28 @@ async function run() {
     const eventCollection = client.db("foodBox").collection("event");
     const galleryCollection = client.db("foodBox").collection("gallery");
     const userCollection = client.db("foodBox").collection("user");
+
+    app.get("/jwt", async (req, res) => {
+      const email = req.query.email;
+      const query = { email: email };
+      const result = await userCollection.findOne(query);
+      if (result) {
+        const token = jwt.sign({ email }, process.env.ACCESS_TOKEN, {
+          expiresIn: "1h",
+        });
+        return res.send({ accessToken: token });
+      }
+      res.status(403).send({ message: "denied" });
+    });
+
+    app.post("/jwt", async (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const token = jwt.sign(user, process.env.ACCESS_TOKEN, {
+        expiresIn: "10h",
+      });
+      res.send({ token });
+    });
 
     app.post("/create-payment-intent", async (req, res) => {
       const donationAmount = req.body;
@@ -57,19 +94,19 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/addblog", async (req, res) => {
+    app.post("/addblog",verifyJWT, async (req, res) => {
       const query = req.body;
       const result = await blogCollection.insertOne(query);
       res.send(result);
     });
 
-    app.post("/addevent", async (req, res) => {
+    app.post("/addevent", verifyJWT, async (req, res) => {
       const query = req.body;
       const result = await eventCollection.insertOne(query);
       res.send(result);
     });
 
-    app.post("/addgallery", async (req, res) => {
+    app.post("/addgallery", verifyJWT, async (req, res) => {
       const query = req.body;
       console.log(query);
       const result = await galleryCollection.insertOne(query);
@@ -145,7 +182,7 @@ async function run() {
       res.send(result);
     });
 
-    app.put("/event/:id", async (req, res) => {
+    app.put("/event/:id", verifyJWT, async (req, res) => {
       const id = req.params.id;
       const eventInfo = req.body;
       const filter = { _id: ObjectId(id) };
@@ -170,7 +207,7 @@ async function run() {
       res.send(result);
     });
 
-    app.put("/gallery/:id", async (req, res) => {
+    app.put("/gallery/:id", verifyJWT, async (req, res) => {
       const id = req.params.id;
       const galleryInfo = req.body;
       const filter = { _id: ObjectId(id) };
@@ -188,21 +225,21 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/blog/:id", async (req, res) => {
+    app.delete("/blog/:id", verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await blogCollection.deleteOne(query);
       res.send(result);
     });
 
-    app.delete("/event/:id", async (req, res) => {
+    app.delete("/event/:id", verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await eventCollection.deleteOne(query);
       res.send(result);
     });
 
-    app.delete("/gallery/:id", async (req, res) => {
+    app.delete("/gallery/:id", verifyJWT, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await galleryCollection.deleteOne(query);
